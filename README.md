@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](Makefile)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Go Version](https://img.shields.io/badge/go-1.21+-blue)](https://golang.org/)
+[![Go Version](https://img.shields.io/badge/go-1.24+-blue)](https://golang.org/)
 
 A comprehensive development environment for RISC-V embedded systems featuring Go programming, Buildroot integration, and practical examples demonstrating real-world RISC-V development workflows.
 
