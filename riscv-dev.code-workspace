@@ -1,0 +1,271 @@
+{
+    "folders": [
+        {
+            "name": "examples",
+            "path": "./examples"
+        },
+        {
+            "name": "docs",
+            "path": "./docs"
+        },
+        {
+            "name": "repo root",
+            "path": "."
+        }
+    ],
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Build Examples",
+                "type": "shell",
+                "command": "make",
+                "args": [
+                    "build-examples"
+                ],
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                },
+                "presentation": {
+                    "reveal": "always",
+                    "echo": true,
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                },
+                "problemMatcher": [
+                    "$go"
+                ]
+            },
+            {
+                "label": "Build Specific Example",
+                "type": "shell",
+                "command": "make",
+                "args": [
+                    "build-example-${input:exampleName}"
+                ],
+                "group": "build",
+                "presentation": {
+                    "reveal": "always",
+                    "echo": true,
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": true,
+                    "clear": false
+                },
+                "problemMatcher": [
+                    "$go"
+                ]
+            },
+            {
+                "label": "Run Example",
+                "type": "shell",
+                "command": "make",
+                "args": [
+                    "run-example-${input:exampleName}"
+                ],
+                "dependsOn": [
+                    "Build Specific Example"
+                ],
+                "presentation": {
+                    "reveal": "always",
+                    "echo": true,
+                    "focus": true,
+                    "panel": "dedicated",
+                    "showReuseMessage": false,
+                    "clear": true
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Start QEMU Debug Server",
+                "type": "shell",
+                "command": "qemu-riscv64",
+                "args": [
+                    "-g",
+                    "-nographic",
+                    "machine virt",
+                    "-m 512M",
+                    "-kernel ${workspaceFolder}/bin/hello",
+                    "-drive file=out/rootfs.ext4,format=raw,id=hd0",
+                    "-device virtio-blk-device,drive=hd0",
+                    "-append \"root=/dev/vda rw console=ttyS0 earlycon\"",
+                    "-smp 1",
+                    "-netdev user,id=net0,hostfwd=tcp::2345-:2345",
+                    "-device virtio-net-device,netdev=net0",
+                ],
+                "dependsOn": [
+                    "Build for Debug"
+                ],
+                "isBackground": true,
+                "presentation": {
+                    "reveal": "always",
+                    "echo": true,
+                    "focus": false,
+                    "panel": "dedicated",
+                    "showReuseMessage": false,
+                    "clear": true
+                },
+                "problemMatcher": {
+                    "pattern": [
+                        {
+                            "regexp": ".*",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "^$",
+                        "endsPattern": "^$"
+                    }
+                }
+            },
+            {
+                "label": "Clean",
+                "type": "shell",
+                "command": "make",
+                "args": [
+                    "clean"
+                ],
+                "group": "build",
+                "presentation": {
+                    "reveal": "silent",
+                    "echo": true,
+                    "focus": false,
+                    "panel": "shared",
+                    "showReuseMessage": false,
+                    "clear": false
+                },
+                "problemMatcher": []
+            }
+        ]
+    },
+    "inputs": [
+        {
+            "id": "exampleName",
+            "description": "Name of the example to build/run (gpio-led, network-server, sensor-reading, buildroot-app)",
+            "default": "gpio-led",
+            "type": "pickString",
+            "options": [
+                "gpio-led",
+                "network-server",
+                "sensor-reading",
+                "buildroot-app"
+            ]
+        }
+    ],
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Attach to QEMU (Delve)",
+                "type": "go",
+                "request": "attach",
+                "mode": "remote",
+                "remotePath": "",
+                "port": 2345,
+                "host": "localhost",
+                "program": "${workspaceFolder}/bin/${input:exampleName}/app",
+                "cwd": "${workspaceFolder}",
+                "debugAdapter": "dlv-dap",
+                "preLaunchTask": "Build Specific Example"
+            },
+            {
+                "name": "Debug Example (Local)",
+                "type": "go",
+                "request": "launch",
+                "mode": "debug",
+                "program": "${workspaceFolder}/examples/${input:exampleName}/cmd/app/main.go",
+                "cwd": "${workspaceFolder}",
+                "env": {
+                    "GOOS": "linux",
+                    "GOARCH": "riscv64",
+                    "CGO_ENABLED": "0"
+                }
+            }
+        ]
+    },
+    "settings": {
+        "C_Cpp_Runner.cCompilerPath": "gcc",
+        "C_Cpp_Runner.cppCompilerPath": "g++",
+        "C_Cpp_Runner.debuggerPath": "gdb",
+        "C_Cpp_Runner.cStandard": "",
+        "C_Cpp_Runner.cppStandard": "",
+        "C_Cpp_Runner.msvcBatchPath": "",
+        "C_Cpp_Runner.useMsvc": false,
+        "C_Cpp_Runner.warnings": [
+            "-Wall",
+            "-Wextra",
+            "-Wpedantic",
+            "-Wshadow",
+            "-Wformat=2",
+            "-Wcast-align",
+            "-Wconversion",
+            "-Wsign-conversion",
+            "-Wnull-dereference"
+        ],
+        "C_Cpp_Runner.msvcWarnings": [
+            "/W4",
+            "/permissive-",
+            "/w14242",
+            "/w14287",
+            "/w14296",
+            "/w14311",
+            "/w14826",
+            "/w44062",
+            "/w44242",
+            "/w14905",
+            "/w14906",
+            "/w14263",
+            "/w44265",
+            "/w14928"
+        ],
+        "C_Cpp_Runner.enableWarnings": true,
+        "C_Cpp_Runner.warningsAsError": false,
+        "C_Cpp_Runner.compilerArgs": [],
+        "C_Cpp_Runner.linkerArgs": [],
+        "C_Cpp_Runner.includePaths": [],
+        "C_Cpp_Runner.includeSearch": [
+            "*",
+            "**/*"
+        ],
+        "C_Cpp_Runner.excludeSearch": [
+            "**/build",
+            "**/build/**",
+            "**/.*",
+            "**/.*/**",
+            "**/.vscode",
+            "**/.vscode/**"
+        ],
+        "C_Cpp_Runner.useAddressSanitizer": false,
+        "C_Cpp_Runner.useUndefinedSanitizer": false,
+        "C_Cpp_Runner.useLeakSanitizer": false,
+        "C_Cpp_Runner.showCompilationTime": false,
+        "C_Cpp_Runner.useLinkTimeOptimization": false,
+        "C_Cpp_Runner.msvcSecureNoWarnings": false,
+        "go.delveConfig": {
+            "dlvLoadConfig": {
+                "followPointers": true,
+                "maxVariableRecurse": 1,
+                "maxStringLen": 64,
+                "maxArrayValues": 64,
+                "maxStructFields": -1
+            },
+            "apiVersion": 2,
+            "showGlobalVariables": true
+        },
+        "go.alternateTools": {
+            "dlv": "/go/bin/dlv"
+        },
+        "go.toolsManagement.autoUpdate": true,
+        "go.useLanguageServer": true,
+        "go.lintTool": "golangci-lint",
+        "go.lintFlags": [
+            "--fast"
+        ]
+    }
+}

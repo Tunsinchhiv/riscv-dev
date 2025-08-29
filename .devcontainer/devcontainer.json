@@ -1,0 +1,63 @@
+{
+    "name": "RISC-V Development Environment",
+    "image": "riscv64/ubuntu:22.04",
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.24"
+        },
+        "ghcr.io/devcontainers/features/python:1": {},
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cmake-tools",
+                "golang.Go",
+                "ms-vscode.vscode-json",
+                "ms-vscode.makefile-tools",
+                "ms-vscode.hexeditor",
+                "ms-vscode.vscode-docker"
+            ],
+            "settings": {
+                "go.gopath": "/go",
+                "go.goroot": "/usr/local/go",
+                "go.formatTool": "gofmt",
+                "go.useLanguageServer": true,
+                "go.lintTool": "golangci-lint",
+                "C_Cpp.default.compilerPath": "/usr/bin/riscv64-linux-gnu-gcc",
+                "C_Cpp.default.cStandard": "c17",
+                "C_Cpp.default.cppStandard": "c++17",
+                "cmake.configureOnOpen": false,
+                "makefile.configureOnOpen": false
+            }
+        }
+    },
+    "mounts": [
+        "source=/opt/duo-buildroot-sdk,target=/opt/duo-buildroot-sdk,type=bind,consistency=cached",
+        "source=/opt/duo-buildroot-sdk-v2,target=/opt/duo-buildroot-sdk-v2,type=bind,consistency=cached"
+    ],
+    "containerEnv": {
+        "GOROOT": "/usr/local/go",
+        "GOPATH": "/go",
+        "PATH": "/usr/local/go/bin:/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    },
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "forwardPorts": [2222, 2345, 6080],
+    "portsAttributes": {
+        "2222": {
+            "label": "SSH",
+            "onAutoForward": "notify"
+        },
+        "2345": {
+            "label": "GDB",
+            "onAutoForward": "notify"
+        },
+        "6080": {
+            "label": "noVNC",
+            "onAutoForward": "notify"
+        }
+    }
+}
